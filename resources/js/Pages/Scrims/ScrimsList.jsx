@@ -21,6 +21,10 @@ export default function ScrimsList({ auth, result }) {
                                 <p className="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
                                     Here you can see a list of all scrims
                                 </p>
+                                <p className="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
+                                    You can
+                                    <a className={'text-[#437bffee]'} href={route('scrims.make')}> MAKE YOUR SCRIM</a>
+                                </p>
                             </caption>
                             <thead
                                 className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
