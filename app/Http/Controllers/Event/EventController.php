@@ -40,6 +40,8 @@ class EventController extends Controller
                 e.maps,
                 e.start_date,
                 e.org_nickname,
+                e.discord_link,
+                e.telegram_link,
                 e.end_date
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
@@ -76,6 +78,8 @@ class EventController extends Controller
                 e.maps,
                 e.start_date,
                 e.org_nickname,
+                e.discord_link,
+                e.telegram_link,
                 e.end_date
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
@@ -99,6 +103,8 @@ class EventController extends Controller
                 d.title as division,
                 se.title as status,
                 e.description,
+                e.discord_link,
+                e.telegram_link,
                 e.maps,
                 e.start_date,
                 e.org_nickname,
@@ -124,6 +130,8 @@ class EventController extends Controller
         $start_date = $request->post('start_date');
         $end_date = $request->post('end_date');
         $orgNickname = $request->post('org_nickname');
+        $discordLink = $request->post('discord_link');
+        $telegramLink = $request->post('telegram_link');
 
         if ($type === 'update') {
             $find = DB::table('events', 'e')->where('e.id', '=' , $id)->first();
@@ -134,6 +142,8 @@ class EventController extends Controller
             $find->start_date = $start_date ?? $find->start_date;
             $find->end_date = $end_date ?? $find->end_date;
             $find->org_nickname = $orgNickname ?? $find->org_nickname;
+            $find->discord_link = $discordLink ?? $find->discord_link;
+            $find->telegram_link = $telegramLink ?? $find->telegram_link;
             $find->updated_at = date('Y-m-d H:i:s');
             if ($find->save()) {
                 return true;
@@ -148,6 +158,8 @@ class EventController extends Controller
                 'end_date' => $end_date,
                 'org_nickname' => $orgNickname,
                 'user_id' => $user->id,
+                'discord_link' => $discordLink,
+                'telegram_link' => $telegramLink,
                 'type_event_id' => $this->typeEvent,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),

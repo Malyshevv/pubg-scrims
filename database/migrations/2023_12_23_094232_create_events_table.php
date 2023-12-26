@@ -23,6 +23,8 @@ return new class extends Migration
             $table->bigInteger('user_id');
             $table->date('start_date');
             $table->date('end_date');
+            $table->string('discord_link');
+            $table->string('telegram_link');
             $table->timestamps();
 
             $table->foreign('division_id')->references('id')->on('division');
