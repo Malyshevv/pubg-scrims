@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Scrims;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Tournaments\EventController;
+use App\Http\Controllers\Event\EventController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,7 +13,7 @@ class ScrimsController extends Controller
 
     public function __construct()
     {
-        $this->eventController = new EventController('Scrim');
+        $this->eventController = new EventController('2');
     }
 
     public function list(Request $request)
@@ -22,9 +22,9 @@ class ScrimsController extends Controller
         return Inertia::render('Scrims/ScrimsList', ['result' => $data]);
     }
 
-    public function view(Request $request)
+    public function view($data)
     {
-        $data = $this->eventController->view($request);
+        $data = $this->eventController->view($data);
         return Inertia::render('Scrims/ScrimsDetailed', ['result' => $data]);
     }
 

@@ -7,6 +7,7 @@ use App\Models\Events\EventsModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Event\EventController;
 use Inertia\Inertia;
 
 class TournamentController extends Controller
@@ -15,7 +16,7 @@ class TournamentController extends Controller
 
     public function __construct()
     {
-        $this->eventController = new EventController('Tournament');
+        $this->eventController = new EventController('1');
     }
 
     public function list(Request $request)
@@ -24,9 +25,9 @@ class TournamentController extends Controller
         return Inertia::render('Tournaments/TournamentsList', ['result' => $data]);
     }
 
-    public function view(Request $request)
+    public function view($data)
     {
-        $data = $this->eventController->view($request);
+        $data = $this->eventController->view($data);
         return Inertia::render('Tournaments/TournamentDetailed', ['result' => $data]);
     }
 

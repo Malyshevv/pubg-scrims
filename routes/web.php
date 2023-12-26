@@ -23,6 +23,7 @@ use Inertia\Inertia;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [NewsController::class, 'index'])->name('dashboard');
+    Route::get('/news/{id?}', [NewsController::class, 'view'])->name('news');
 
     Route::get('/about-us', function () {
         return Inertia::render('AboutUs/AboutUs');

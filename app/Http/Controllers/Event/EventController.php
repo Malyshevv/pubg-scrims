@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Tournaments;
+namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\EventsModel;
@@ -44,17 +44,17 @@ class EventController extends Controller
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
             ->leftJoin('division as d', 'd.id', '=', 'e.division_id')
-            ->where('e.type_event_id', '=', $this->typeEvent->id)
-            ->when(count($eventTitle), function ($query) use ($eventTitle) {
+            ->where('e.type_event_id', '=', $this->typeEvent)
+            ->when(!empty($eventTitle), function ($query) use ($eventTitle) {
                 return $query->where('e.title', 'LIKE', '%'.$eventTitle.'%');
             })
-            ->when(count($orgNickname), function ($query) use ($orgNickname) {
+            ->when(!empty($orgNickname), function ($query) use ($orgNickname) {
                 return $query->where('e.org_nickname', 'LIKE', '%'.$orgNickname.'%');
             })
-            ->when(count($divisionId), function ($query) use ($divisionId) {
+            ->when(!empty($divisionId), function ($query) use ($divisionId) {
                 return $query->whereIn('e.division_id', $divisionId);
             })
-            ->when(count($statusId), function ($query) use ($statusId) {
+            ->when(!empty($statusId), function ($query) use ($statusId) {
                 return $query->whereIn('e.status_id', $statusId);
             })
             ->orderByDesc('e.start_date')
@@ -62,10 +62,8 @@ class EventController extends Controller
             ->withQueryString();
     }
 
-    public function view(Request $request)
+    public function view($id)
     {
-        $id = $request->query('id');
-
         return DB::table('events', 'e')
             ->selectRaw("
                 e.id,
@@ -82,7 +80,7 @@ class EventController extends Controller
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
             ->leftJoin('division as d', 'd.id', '=', 'e.division_id')
-            ->where('e.type_event_id', '=', $this->typeEvent->id)
+            ->where('e.type_event_id', '=', $this->typeEvent)
             ->where('e.id', '=', $id)
             ->first();
     }
@@ -108,7 +106,7 @@ class EventController extends Controller
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
             ->leftJoin('division as d', 'd.id', '=', 'e.division_id')
-            ->where('e.type_event_id', '=', $this->typeEvent->id)
+            ->where('e.type_event_id', '=', $this->typeEvent)
             ->where('e.id', '=', $id)
             ->where('e.user_id', '=', $user->id)
             ->first();
@@ -150,7 +148,7 @@ class EventController extends Controller
                 'end_date' => $end_date,
                 'org_nickname' => $orgNickname,
                 'user_id' => $user->id,
-                'type_event_id' => $this->typeEvent->id,
+                'type_event_id' => $this->typeEvent,
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
