@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tournaments;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Directory\DirectoryController;
 use App\Models\Events\EventsModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,9 +14,11 @@ use Inertia\Inertia;
 class TournamentController extends Controller
 {
     private EventController $eventController;
+    private DirectoryController $directoryController;
 
     public function __construct()
     {
+        $this->directoryController = new DirectoryController();
         $this->eventController = new EventController('1');
     }
 
@@ -33,13 +36,15 @@ class TournamentController extends Controller
 
     public function edit(Request $request)
     {
+        $dir = $this->directoryController->getDirectory(null);
         $data = $this->eventController->edit($request);
-        return Inertia::render('Tournaments/TournamentEdit', ['result' => $data]);
+        return Inertia::render('Tournaments/TournamentEdit', ['result' => $data, 'dir' => $dir]);
     }
 
     public function make(Request $request)
     {
-        return Inertia::render('Tournaments/TournamentEdit', ['result' => []]);
+        $dir = $this->directoryController->getDirectory(null);
+        return Inertia::render('Tournaments/TournamentEdit', ['result' => [], 'dir' => $dir]);
     }
 
     public function save(Request $request)

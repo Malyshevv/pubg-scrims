@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Scrims;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Directory\DirectoryController;
 use App\Http\Controllers\Event\EventController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,9 +11,11 @@ use Inertia\Inertia;
 class ScrimsController extends Controller
 {
     private EventController $eventController;
+    private DirectoryController $directoryController;
 
     public function __construct()
     {
+        $this->directoryController = new DirectoryController();
         $this->eventController = new EventController('2');
     }
 
@@ -30,13 +33,15 @@ class ScrimsController extends Controller
 
     public function edit(Request $request)
     {
+        $dir = $this->directoryController->getDirectory(null);
         $data = $this->eventController->edit($request);
-        return Inertia::render('Scrims/ScrimsEdit', ['result' => $data]);
+        return Inertia::render('Scrims/ScrimsEdit', ['result' => $data, 'dir' => $dir]);
     }
 
     public function make(Request $request)
     {
-        return Inertia::render('Scrims/ScrimsEdit', ['result' => []]);
+        $dir = $this->directoryController->getDirectory(null);
+        return Inertia::render('Scrims/ScrimsEdit', ['result' => [], 'dir' => $dir]);
     }
 
     public function save(Request $request)

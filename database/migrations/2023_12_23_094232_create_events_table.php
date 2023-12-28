@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('maps');
             $table->string('org_nickname');
             $table->bigInteger('user_id');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
             $table->string('discord_link');
             $table->string('telegram_link');
             $table->timestamps();
