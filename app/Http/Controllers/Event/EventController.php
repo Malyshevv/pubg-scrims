@@ -81,7 +81,8 @@ class EventController extends Controller
                 e.org_nickname,
                 e.discord_link,
                 e.telegram_link,
-                e.end_date
+                e.end_date,
+                e.user_id
             ")
             ->leftJoin('status_events as se', 'se.id', '=', 'e.status_id')
             ->leftJoin('division as d', 'd.id', '=', 'e.division_id')
@@ -90,9 +91,8 @@ class EventController extends Controller
             ->first();
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request, $id)
     {
-        $id = $request->query('id');
         $user = Auth::user();
 
         return DB::table('events', 'e')

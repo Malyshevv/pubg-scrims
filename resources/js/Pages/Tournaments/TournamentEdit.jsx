@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import {Head} from "@inertiajs/react";
 import PrimaryButton from "@/Components/PrimaryButton.jsx";
 import Select from 'react-select'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {getMapName} from "@/Utils/GlobalConst.jsx";
 
 export default function TournamentEdit({ auth, result, dir }) {
@@ -13,20 +13,68 @@ export default function TournamentEdit({ auth, result, dir }) {
     const [countTaego, setCountTaego] = useState(0);
 
     const [title, setTitle] = useState('');
-    const [status, setStatus] = useState(null);
+    const [status, setStatus] = useState();
     const [strDT, setStrDT] = useState('');
     const [endDT, setEndDT] = useState('');
     const [orgNickname, setOrgNickname] = useState('');
     const [discord, setDiscord] = useState('');
     const [telegram, setTelegram] = useState('');
     const [description, setDescription] = useState('');
-    const [tier, setTier] = useState(null);
+    const [tier, setTier] = useState();
+    const [mapsArray, setMapsArray] = useState();
+
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (result) {
+            setTitle(result.title);
+            setStatus(result.status_id);
+            setStrDT(result.start_date);
+            setEndDT(result.end_date);
+            setOrgNickname(result.org_nickname);
+            setDiscord(result.discord_link);
+            setTelegram(result.telegram_link);
+            setDescription(result.description);
+            setTier(result.division_id);
+            setMapsArray(result.maps ? result.maps.split('/') : []);
+        }
+    }, [])
+
+    useEffect(() => {
+        let newArray = [];
+        if (mapsArray && mapsArray?.length) {
+            let mapColor;
+            mapsArray.map((el) => {
+                switch (el) {
+                    case 'E':
+                        mapColor = '#0f8739ee'
+                        break;
+                    case 'M':
+                        mapColor = '#b7d79aee'
+                        break;
+                    case 'V':
+                        mapColor = '#0d63e5ee'
+                        break;
+                    case 'T':
+                        mapColor = '#43c13aee'
+                        break;
+                }
+                countMaps(el);
+                newArray.push({
+                    'title': el,
+                    'color': mapColor
+                })
+            });
+            setMaps(newArray);
+        }
+    }, [mapsArray])
 
     const save = () => {
         let params = {
+            id: result.id,
             title: title,
-            status_id: status.value,
-            division_id: tier.value,
+            status_id: status?.value,
+            division_id: tier?.value,
             description: description,
             start_date: strDT,
             end_date: endDT,
@@ -37,10 +85,17 @@ export default function TournamentEdit({ auth, result, dir }) {
             type: 'create'
         }
 
-        axios.post('/tournament/create',params).then(r => {
-            if (r && r.data) {
-                console.log(r)
+        axios.post('/tournament/update',params).then(r => {
+            if (r && r?.result) {
+                if (r.result === true) {
+                    window.location = '/tournament/list';
+                } else {
+                    setError('error pls contact the site administration')
+                }
             }
+        }).catch((e) => {
+            let errorsValidate = JSON.stringify(e?.response?.data);
+            setError(errorsValidate)
         })
     }
 
@@ -49,6 +104,11 @@ export default function TournamentEdit({ auth, result, dir }) {
             'color': color,
             'title': title,
         };
+        countMaps(title);
+        setMaps([...Maps, newValue])
+    };
+
+    const countMaps = (title) => {
         switch (title)
         {
             case 'E':
@@ -64,8 +124,8 @@ export default function TournamentEdit({ auth, result, dir }) {
                 setCountTaego(countTaego + 1);
                 break;
         }
-        setMaps([...Maps, newValue])
-    };
+    }
+
     const delMap = (key, title) => {
         let mapList = Maps.filter((Maps, index) => index !== key);
         switch (title) {
@@ -83,6 +143,11 @@ export default function TournamentEdit({ auth, result, dir }) {
                 break;
         }
         setMaps(mapList)
+    }
+
+
+    const changeStatusState = (e) => {
+        setStatus(e.value);
     }
 
     return (
@@ -105,7 +170,7 @@ export default function TournamentEdit({ auth, result, dir }) {
                             <div>
                                 <label htmlFor="title"
                                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                    Scrim title
+                                    Tournament title
                                 </label>
                                 <input defaultValue={title} onChange={(e) => setTitle(e?.target?.value)} type="text" id="title" aria-describedby="helper-text-explanation"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -116,7 +181,13 @@ export default function TournamentEdit({ auth, result, dir }) {
                                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                     Status
                                 </label>
-                                <Select defaultValue={status} onChange={setStatus}  id="status" options={dir?.statusEvent} />
+                                <select className={'w-full rounded'} onChange={(e) => setStatus(e?.value)} defaultValue={result?.status_id || status}>
+                                    {dir?.statusEvent && dir?.statusEvent?.length && (
+                                        dir.statusEvent.map((el) => (
+                                            <option value={el.value}>{el.label}</option>
+                                        ))
+                                    )}
+                                </select>
                             </div>
                             <div className={'mt-5'}>
                                 <label htmlFor="startdt"
@@ -177,7 +248,13 @@ export default function TournamentEdit({ auth, result, dir }) {
                                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                     Tier
                                 </label>
-                                <Select defaultValue={tier} onChange={setTier} id="tier" options={dir?.division} />
+                                <select className={'w-full rounded'} onChange={(e) => setTier(e?.value)} defaultValue={result?.division_id || tier}>
+                                    {dir?.division && dir?.division?.length && (
+                                        dir.division.map((el) => (
+                                            <option value={el.value}>{el.label}</option>
+                                        ))
+                                    )}
+                                </select>
                             </div>
                             <div className={'mt-5'}>
                                 <label htmlFor="maps"
@@ -191,7 +268,7 @@ export default function TournamentEdit({ auth, result, dir }) {
                                     <div onClick={() => addMaps('#43c13aee', 'T')} className={'cursor-pointer text-white p-3 text-center bg-[#43c13aee]  hover:bg-[#43c13ac3]'}>Taego ({countTaego})</div>
                                 </div>
                                 <div className="w-full overflow-x-auto mt-5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    {Maps.length == 0 && (
+                                    {Maps.length === 0 && (
                                         'Select maps'
                                     )}
                                     {Maps && Maps.length > 0 && (
@@ -217,6 +294,13 @@ export default function TournamentEdit({ auth, result, dir }) {
                             </div>
                         </div>
 
+                        {error && error.length && (
+                            <>
+                               <div className={'rounded bg-red-500 mt-5 p-2 text-white'}>
+                                   {error}
+                               </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

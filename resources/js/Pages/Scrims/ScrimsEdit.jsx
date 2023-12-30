@@ -25,8 +25,8 @@ export default function ScrimsEdit({ auth, result, dir }) {
     const save = () => {
         let params = {
             title: title,
-            status_id: status.value,
-            division_id: tier.value,
+            status_id: status?.value,
+            division_id: tier?.value,
             description: description,
             start_date: strDT,
             end_date: endDT,
@@ -39,7 +39,11 @@ export default function ScrimsEdit({ auth, result, dir }) {
 
         axios.post('/tournament/create',params).then(r => {
             if (r && r.data) {
-                console.log(r)
+                if (r.data?.result === true) {
+                    window.location = '/tournament/list';
+                } else {
+                    alert(r.data);
+                }
             }
         })
     }

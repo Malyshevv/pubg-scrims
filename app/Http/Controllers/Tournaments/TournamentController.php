@@ -34,10 +34,10 @@ class TournamentController extends Controller
         return Inertia::render('Tournaments/TournamentDetailed', ['result' => $data]);
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request, $id)
     {
         $dir = $this->directoryController->getDirectory(null);
-        $data = $this->eventController->edit($request);
+        $data = $this->eventController->edit($request, $id);
         return Inertia::render('Tournaments/TournamentEdit', ['result' => $data, 'dir' => $dir]);
     }
 

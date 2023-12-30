@@ -20,6 +20,7 @@
         "vite": "^5.0.0"
     },
     "dependencies": {
-        "react-select": "^5.8.0"
+        "react-select": "^5.8.0",
+        "react-tabs": "^6.0.2"
     }
 }
