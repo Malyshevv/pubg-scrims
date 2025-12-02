@@ -4,95 +4,220 @@ namespace App\Http\Controllers\PUBG\Match;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PUBG\ApiPUBGController;
+use App\Models\Matchs\MatchsModel;
+use App\Models\Teams\TeamsEventModel;
+use App\Models\User;
 use App\Utils\GlobalConst;
 use DateTime;
 use Illuminate\Http\Request;
 
 class ApiPUBGFetchMatchController extends ApiPUBGController
 {
-    public array $messages = [
-        'platform.required' => 'Поле platform является обязательным для заполнения',
-        'api_key.required' => 'Поле api_key является обязательным для заполнения',
-        'matchId.required' => 'Поле type является обязательным для заполнения'
-    ];
-    public array $rules = [
-        'platform' => 'required',
-        'api_key' => 'required',
-        'matchId' => 'required',
-    ];
+	public array $messages = [
+		'platform.required' => 'Поле platform является обязательным',
+		'matchId.required'  => 'Поле matchId является обязательным',
+		'event_id.required' => 'Поле event_id является обязательным',
+	];
 
-    public function getMatch(Request $request) {
-        $this->validateParams($request, $this->messages, $this->rules);
+	public array $rules = [
+		'platform' => 'required',
+		'matchId'  => 'required',
+		'event_id' => 'required|integer|exists:events,id',
+	];
 
-        $platform = $request->query('platform');
-        $apiKey = $request->query('api_key');
-        $matchId = $request->query('matchId');
+	/**
+	 * Получение + сохранение матча
+	 */
+	public function getMatch(Request $request)
+	{
+		$this->validateParams($request, $this->messages, $this->rules);
 
-        $url = "$this->url/$platform/matches/$matchId";
-        $result = $this->curlSend($url, $apiKey);
+		$platform = $request->query('platform');
+		$matchId  = $request->query('matchId');
+		$eventId  = $request->query('event_id');
 
-        $result = $result ? json_decode($result) : null;
+		// ------------------------------------
+		// 🔥 Проверка: матч уже существует?
+		// ------------------------------------
+		$existing = MatchsModel::where('match_id', $matchId)->first();
 
-        $teams = [];
-        $players = [];
-        $included = $result->included;
+		if ($existing) {
+			return response()->json([
+				'result' => $existing->match_detailed,
+				'cached' => true
+			]);
+		}
 
-        foreach ($included as $item) {
-            if ($item->type == 'roster') {
-                $teams[] = [
-                    'teamId' => $item->attributes->stats->teamId,
-                    'roster' => [
-                        'killPoints' => 0,
-                        'data' => $item->relationships->participants->data
-                    ],
-                    'won' => $item->attributes->won,
-                    'rank' => $item->attributes->stats->rank,
-                    'points' => 0,
-                    'killPoints' => 0,
-                    'pointPlace' => GlobalConst::PointPlace[$item->attributes->stats->rank]
-                ];
-            } else if ($item->type == 'participant') {
-                $players[] = [
-                    'roster_player_id' => $item->id,
-                    'platform' => $item->attributes->shardId,
-                    'stats' => $item->attributes->stats,
-                ];
-            }
-        }
+		// ------------------------------------
+		// 🔥 Запрашиваем матч из PUBG API
+		// ------------------------------------
+		$url = "$this->url/$platform/matches/$matchId";
+		$response = $this->curlSend($url);
 
-        foreach ($players as $player) {
-            $playerRosterId = $player['roster_player_id'];
-            foreach ($teams as $key => $teamsItem) {
-                $roster = $teamsItem['roster']['data'];
-                foreach ($roster as $rosterItem) {
-                    if ($rosterItem->id == $playerRosterId) {
-                        $rosterItem->platform = $player['platform'];
-                        $rosterItem->player_name = $player['stats']->name;
-                        $rosterItem->player_kill = $player['stats']->kills;
-                        $rosterItem->player_damage = $player['stats']->damageDealt;
-                        $rosterItem->detailed = $player['stats'];
-                        $teams[$key]['killPoints'] = $teams[$key]['killPoints'] ? $rosterItem->player_kill + $teams[$key]['killPoints']  : $rosterItem->player_kill;
-                    }
-                }
+		if (!$response) {
+			return response()->json(['error' => 'PUBG API error'], 500);
+		}
 
-                $teams[$key]['points'] = $teams[$key]['killPoints'] + $teams[$key]['pointPlace'];
-            }
-        }
+		$response = json_decode($response);
+		$included = $response->included;
+
+		$teams = [];
+		$players = [];
+
+		// ------------------------------------
+		// 🔥 Собираем roster'ы и игроков
+		// ------------------------------------
+		foreach ($included as $item) {
+
+			if ($item->type === 'roster') {
+
+				$teams[] = [
+					'teamId' => $item->attributes->stats->teamId,
+					'roster' => [
+						'killPoints' => 0,
+						'data' => $item->relationships->participants->data
+					],
+					'won'        => $item->attributes->won,
+					'rank'       => $item->attributes->stats->rank,
+					'points'     => 0,
+					'killPoints' => 0,
+					'pointPlace' => GlobalConst::PointPlace[$item->attributes->stats->rank]
+				];
+
+			} elseif ($item->type === 'participant') {
+
+				$players[] = [
+					'roster_player_id' => $item->id,
+					'platform'          => $item->attributes->shardId,
+					'stats'             => $item->attributes->stats,
+				];
+			}
+		}
+
+		// ------------------------------------
+		// 🔥 Сопоставление игроков командам
+		// ------------------------------------
+		foreach ($players as $player) {
+			$rosterPlayerId = $player['roster_player_id'];
+
+			foreach ($teams as $key => $team) {
+
+				foreach ($team['roster']['data'] as $rosterItem) {
+
+					if ($rosterItem->id === $rosterPlayerId) {
+
+						$rosterItem->platform      = $player['platform'];
+						$rosterItem->player_name   = $player['stats']->name;
+						$rosterItem->player_kill   = $player['stats']->kills;
+						$rosterItem->player_damage = $player['stats']->damageDealt;
+						$rosterItem->detailed      = $player['stats'];
+
+						$teams[$key]['killPoints'] += $rosterItem->player_kill;
+					}
+				}
+
+				$teams[$key]['points'] =
+					$teams[$key]['killPoints'] + $teams[$key]['pointPlace'];
+			}
+		}
+
+		// ------------------------------------
+		// 🔥 Формируем итоговый массив матча
+		// ------------------------------------
+		$timestamp  = strtotime($response->data->attributes->createdAt);
+		$dateObject = new DateTime("@$timestamp");
+
+		$matchData = [
+			'map'       => GlobalConst::Map[$response->data->attributes->mapName],
+			'matchType' => $response->data->attributes->matchType,
+			'gameMode'  => $response->data->attributes->gameMode,
+			'startInTime' => $dateObject->format('d.m.Y H:i:s') . ' GMT',
+			'duration'  => round($response->data->attributes->duration / 60) . ' minute',
+			'result'    => $teams
+		];
+
+		// ------------------------------------
+		// 🔥 Сохраняем матч
+		// ------------------------------------
+		MatchsModel::create([
+			'match_id'       => $matchId,
+			'event_id'       => $eventId,
+			'match_detailed' => json_encode($matchData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+		]);
+
+		// ------------------------------------
+		// 🔥 Сохраняем команды (без дубликатов!)
+		// ------------------------------------
+		foreach ($teams as $team) {
+
+			$exists = TeamsEventModel::where([
+				'event_id' => $eventId,
+				'match_id' => $matchId,
+				'team_lobby_number' => $team['teamId']
+			])->exists();
+
+			if (!$exists) {
+				$teamName = $team['roster']['team_name'] ?? ("Team #".$team['teamId']);
+				$matchId = trim($matchId);
+				TeamsEventModel::create([
+					'event_id'          => $eventId,
+					'match_id'          => "{$matchId}",
+					'team_lobby_number' => $team['teamId'],
+					'team_name'         => "{$teamName}",
+					'points'            => $team['points'],
+					'kill_points'       => $team['killPoints'],
+					'place_points'      => $team['pointPlace'],
+					'detailed_info'     => json_encode($team, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+				]);
+
+			}
+		}
+
+		return response()->json([
+			'result' => $matchData,
+			'cached' => false
+		]);
+	}
 
 
-        $timestamp = strtotime($result->data->attributes->createdAt);
-        $dateObject = new DateTime("@$timestamp");
-        $dateSt = $dateObject->format('d.m.Y H:i:s');
+	/**
+	 * Получение последнего матча пользователя
+	 */
+	public function getLastMatchPlayer(Request $request)
+	{
+		$eventId = $request->query('event_id');
+		if (!$eventId) {
+			return response()->json(['error' => 'event_id is required'], 422);
+		}
+		
+		$userId = auth()->id();
+		$user = User::find($userId);
 
-        $result = [
-            'map' => GlobalConst::Map[$result->data->attributes->mapName],
-            'matchType' => $result->data->attributes->matchType,
-            'gameMode' => $result->data->attributes->gameMode,
-            'startInTime' => $dateSt . ' GMT',
-            'duration' => round($result->data->attributes->duration / 60) .' minute',
-            'result' => $teams
-        ];
-        return response()->json(['result' => $result]);
-    }
+		if (!$user) {
+			return response()->json(['result' => []]);
+		}
 
+		$fakeReq = new Request([
+			'platform' => $user->platform,
+			'nickname' => $user->name
+		]);
+
+		$playerData = $this->getPlayerData($fakeReq);
+
+		if (!$playerData || !$playerData->data) {
+			return response()->json(['result' => []]);
+		}
+
+		$matchId = $playerData->data[0]->relationships->matches->data[0]->id;
+
+		$fakeReq = new Request([
+			'platform' => $user->platform,
+			'matchId'  => $matchId,
+			'event_id' => $eventId
+		]);
+
+		$this->getMatch($fakeReq);
+
+		return true;
+	}
 }

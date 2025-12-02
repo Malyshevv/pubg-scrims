@@ -23,8 +23,8 @@ Route::post('token', [ApiAuthController::class, 'requestToken']);
 
 Route::middleware('auth:sanctum')->get('get-match', [ApiPUBGFetchMatchController::class, 'getMatch'])->name('get-match');
 
-Route::middleware('auth:sanctum')->get('get-player-ranked-stats', [PlayerRankedStatsController::class, 'getPlayerRankedStats'])->name('get-player-ranked-stats');
-Route::middleware('auth:sanctum')->get('get-player-data', [PlayerStatsController::class, 'getPlayerData'])->name('get-player-data');
+Route::get('get-player-ranked-stats', [PlayerRankedStatsController::class, 'getPlayerRankedStats'])->name('get-player-ranked-stats');
+Route::get('get-player-data', [PlayerStatsController::class, 'getPlayerData'])->name('get-player-data');
 Route::middleware('auth:sanctum')->get('get-player-lifetime-stats', [PlayerLifeTimeStatsController::class, 'getPlayerLifeTimeStats'])->name('get-player-lifetime-stats');
 
 Route::middleware('auth:sanctum')->get('get-seasons-list', [SeasonsController::class, 'getSeasonsAll'])->name('get-seasons-list');

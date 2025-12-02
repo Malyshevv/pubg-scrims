@@ -27,6 +27,9 @@ class EventsModel extends Model
         'maps',
         'start_date',
         'end_date',
+        'discord_link',
+        'telegram_link',
+        'org_nickname',
         'created_at',
         'updated_at'
     ];

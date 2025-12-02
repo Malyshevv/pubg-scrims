@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
             $table->string('match_id');
-            $table->bigInteger('event_id');
+            $table->unsignedBigInteger('event_id');
             $table->json('match_detailed');
             $table->timestamps();
 

@@ -24,8 +24,6 @@ class SeasonsController extends ApiPUBGController
         $apiKey = $request->query('api_key');
 
         $url = "$this->url/$platform/seasons";
-        $result = $this->curlSend($url, $apiKey);
-
-        return response()->json(['result' => $result]);
+	    return json_decode($this->curlSend($url, $apiKey));
     }
 }

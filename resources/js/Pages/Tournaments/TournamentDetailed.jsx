@@ -8,9 +8,9 @@ export default function TournamentDetailed({ auth, result }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<div className={'flex justify-between'}><h2 className="justify-start font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Tournament: {result.title} </h2> {result.user_id === auth.user.id ? <a href={`/tournament/edit/${result.id}`} className={'px-3 text-white justify-end ml-4 rounded-full bg-blue-500 text-lg'}>Edit</a> : ''}</div>}
+            header={<div className={'flex justify-between'}><h2 className="justify-start font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Турнир: {result.title} </h2> {result.user_id === auth.user.id ? <a href={`/tournament/edit/${result.id}`} className={'px-3 text-white justify-end ml-4 rounded-full bg-blue-500 text-lg'}>Edit</a> : ''}</div>}
         >
-            <Head title="Tournament" />
+            <Head title="Турнир" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -26,19 +26,19 @@ export default function TournamentDetailed({ auth, result }) {
                             </h1>
                             <p className={'text-gray-100 dark:text-gray-400'}>{result.description}</p>
                             <div className={'grid grid-cols-4 gap-4 text-gray mt-5 dark:text-gray-400'}>
-                                <p className={'border-b pb-1 border-gray-400'}><b>Date Start:</b> {result.start_date}</p>
-                                <p className={'border-b pb-1 border-gray-400'}><b>Date End:</b> {result.end_date}</p>
-                                <p className={'border-b pb-1 border-gray-400'}><b>Maps:</b> {result.maps}</p>
-                                <p className={'border-b pb-1 border-gray-400'}><b>Org. nickname:</b> {result.org_nickname}</p>
-                                <p className={'border-b pb-1 border-gray-400'}><b>Division:</b> {result.division}</p>
+                                <p className={'border-b pb-1 border-gray-400'}><b>Дата начала:</b> {result.start_date}</p>
+                                <p className={'border-b pb-1 border-gray-400'}><b>Дата окончания:</b> {result.end_date}</p>
+                                <p className={'border-b pb-1 border-gray-400'}><b>Карта:</b> {result.maps}</p>
+                                <p className={'border-b pb-1 border-gray-400'}><b>Организатор:</b> {result.org_nickname}</p>
+                                <p className={'border-b pb-1 border-gray-400'}><b>Дивизион:</b> {result.division}</p>
                                 <p className={'border-b pb-1 border-gray-400'}><b>Telegram:</b> {result.telegram_link ? <Link className={'font-medium text-blue-600 dark:text-blue-500 hover:underlin'} href={result.telegram_link}>Open Telegram</Link> : 'N/A'}</p>
                                 <p className={'border-b pb-1 border-gray-400'}><b>Discord:</b> {result.discord_link ? <Link className={'font-medium text-blue-600 dark:text-blue-500 hover:underlin'} href={result.discord_link}>Open Discord</Link> : 'N/A'}</p>
                             </div>
 
                             <Tabs className={'mt-5 mb-4 border-b border-gray-200 dark:border-gray-700'}>
                                 <TabList className={'flex flex-wrap -mb-px text-sm font-medium text-center text-gray-300 dark:text-white'}>
-                                    <Tab className={'inline-block p-4 rounded-t-lg  cursor-pointer hover:bg-blue-700 hover:text-white'}>Stats</Tab>
-                                    <Tab className={'inline-block p-4 rounded-t-lg cursor-pointer hover:bg-blue-700 hover:text-white'}>Matches</Tab>
+                                    <Tab className={'inline-block p-4 rounded-t-lg  cursor-pointer hover:bg-blue-700 hover:text-white'}>Статистика</Tab>
+                                    <Tab className={'inline-block p-4 rounded-t-lg cursor-pointer hover:bg-blue-700 hover:text-white'}>Матчи</Tab>
                                 </TabList>
 
                                 <TabPanel className={'rounded-lg bg-gray-50 dark:bg-gray-800'}>
@@ -48,19 +48,19 @@ export default function TournamentDetailed({ auth, result }) {
                                                 className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                             <tr>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Placement
+                                                    Место
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Team Name
+                                                    Команда
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Kill points
+                                                    Очки за килы
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Placement points
+                                                    Очки за место
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Total Points
+                                                    Общее кол-во очков
                                                 </th>
                                             </tr>
                                             </thead>
@@ -97,13 +97,13 @@ export default function TournamentDetailed({ auth, result }) {
                                                 className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                             <tr>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Date
+                                                    Дата
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Map
+                                                    Карта
                                                 </th>
                                                 <th scope="col" className="px-6 py-3">
-                                                    Winner
+                                                    Победитель
                                                 </th>
                                             </tr>
                                             </thead>

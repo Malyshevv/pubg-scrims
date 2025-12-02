@@ -19,6 +19,14 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+	    'contacts',
+	    'report',
+	    'platform',
+	    'bot',
+	    'god_player',
+	    'is_blocked',
+	    'is_deleted',
+	    'isShowTable',
         'api_key',
         'email',
         'password',

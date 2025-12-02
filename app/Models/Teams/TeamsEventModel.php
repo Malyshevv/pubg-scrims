@@ -23,6 +23,7 @@ class TeamsEventModel extends Model
         'team_lobby_number',
         'team_name',
         'points',
+	    'match_id',
         'kill_points',
         'place_points',
         'detailed_info',

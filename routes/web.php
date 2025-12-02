@@ -3,7 +3,10 @@
 use App\Http\Controllers\Match\MatchController;
 use App\Http\Controllers\News\NewsController;
 use App\Http\Controllers\Player\PlayerController;
+use App\Http\Controllers\Player\PlayerReactionController;
+use App\Http\Controllers\Player\PlayerTopController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PUBG\Match\ApiPUBGFetchMatchController;
 use App\Http\Controllers\Scrims\ScrimsController;
 use App\Http\Controllers\Tournaments\TournamentController;
 use Illuminate\Foundation\Application;
@@ -34,8 +37,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/player-stats', [PlayerController::class, 'index'])->name('player-stats');
+	Route::get('/players-top', [PlayerTopController::class, 'index'])->name('players-top');
 
-    //Tournaments
+	Route::post('/pubg/leaderboard/add', [PlayerTopController::class, 'add'])
+		->middleware('auth')
+		->name('pubg.leaderboard.add');
+
+	Route::post('/players/reaction', [PlayerReactionController::class, 'toggle'])
+		->middleware('auth')
+		->name('players.reaction');
+	
+	//Tournaments
     Route::get('/tournament/match/{id?}', [MatchController::class, 'index'])->name('tournament.match');
 
     Route::get('/tournament/list', [TournamentController::class, 'list'])->name('tournament.list');
@@ -56,6 +68,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/scrims/make', [ScrimsController::class, 'make'])->name('scrims.make');
     Route::post('/scrims/create', [ScrimsController::class, 'save'])->name('scrims.create');
+	
+	Route::get('/match/find', [ApiPUBGFetchMatchController::class, 'getLastMatchPlayer'])->name('match.find');
 });
 
 require __DIR__.'/auth.php';

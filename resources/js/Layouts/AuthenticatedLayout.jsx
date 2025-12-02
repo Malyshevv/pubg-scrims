@@ -22,16 +22,19 @@ export default function Authenticated({ user, header, children }) {
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
-                                    Dashboard
+                                    Главная
                                 </NavLink>
                                 <NavLink href={route('tournament.list')} active={route().current('tournament.list')}>
-                                    Tournaments
+                                    Турниры
                                 </NavLink>
                                 <NavLink href={route('scrims.list')} active={route().current('scrims.list')}>
-                                    Scrims
+                                    Кастомки
                                 </NavLink>
                                 <NavLink href={route('player-stats')} active={route().current('player-stats')}>
-                                    Check stats
+                                    Проверить стату
+                                </NavLink>
+                                <NavLink href={route('players-top')} active={route().current('players-top')}>
+                                    Рейтинг игроков
                                 </NavLink>
                             </div>
                         </div>
@@ -64,9 +67,9 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        <Dropdown.Link href={route('profile.edit')}>Профиль</Dropdown.Link>
                                         <Dropdown.Link href={route('logout')} method="post" as="button">
-                                            Log Out
+                                            Выйти
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>

@@ -6,15 +6,15 @@ export default function Dashboard({ auth, result }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Home</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">Главная</h2>}
         >
-            <Head title="Home" />
+            <Head title="Главная" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         {!result || !result.data || !result.data.length && (
-                            <p className={'text-gray dark:text-white p-10 text-center'}> News not found</p>
+                            <p className={'text-gray dark:text-white p-10 text-center'}> Новости не найдены</p>
                         )}
                         <ul className={'divide-y divide-gray-200 dark:divide-gray-700'}>
                             {result && result.data && (
@@ -39,7 +39,7 @@ export default function Dashboard({ auth, result }) {
                                                         <div className="text-base font-medium leading-6"><a
                                                             className="text-primary-500 dark:text-gray-500 hover:text-primary-600 dark:hover:text-gray-300"
                                                             aria-label="Read more: &quot;Release of Tailwind Nextjs Starter Blog v2.0&quot;"
-                                                            href={`/news/${el.id}`}>Read more →</a>
+                                                            href={`/news/${el.id}`}>Читать далее →</a>
                                                         </div>
                                                     </div>
                                                 </div>

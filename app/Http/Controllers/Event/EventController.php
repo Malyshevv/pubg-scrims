@@ -33,6 +33,7 @@ class EventController extends Controller
                 e.status_id,
                 e.division_id,
                 d.title as division,
+                e.user_id,
                 se.title as status,
                 (
                     select count(*) from matches m where event_id = e.id
@@ -154,7 +155,7 @@ class EventController extends Controller
 
             $this->validate($request, $rules, $messages);
 
-            $find = DB::table('events', 'e')->where('e.id', '=' , $id)->first();
+            $find = EventsModel::where('id', '=' , $id)->first();
             $find->title = $title ?? $find->title;
             $find->status_id = $status_id ?? $find->status_id;
             $find->division_id = $division_id ?? $find->division_id;
@@ -164,7 +165,7 @@ class EventController extends Controller
             $find->org_nickname = $orgNickname ?? $find->org_nickname;
             $find->discord_link = $discordLink ?? $find->discord_link;
             $find->telegram_link = $telegramLink ?? $find->telegram_link;
-            $find->maps = $maps ?? $find->maps;
+            $find->maps = $newMaps ?? $find->maps;
             $find->updated_at = date('Y-m-d H:i:s');
             if ($find->save()) {
                 return true;

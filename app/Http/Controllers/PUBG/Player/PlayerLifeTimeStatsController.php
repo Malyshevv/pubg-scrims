@@ -14,7 +14,7 @@ class PlayerLifeTimeStatsController extends ApiPUBGController
     ];
     public array $rules = [
         'platform' => 'required',
-        'api_key' => 'required',
+        #'api_key' => 'required',
         'accountID' => 'required'
     ];
 
@@ -24,8 +24,14 @@ class PlayerLifeTimeStatsController extends ApiPUBGController
 
         $platform = $request->query('platform');
         $apiKey = $request->query('api_key');
-        $accountID = $request->query('accountID');
-
+		
+		$playerData = $this->getPlayerData($request);
+		if (!$playerData || !$playerData["data"]) {
+			return response()->json(['result' => []]);
+		}
+		
+		$accountID = $playerData["result"]["data"]["id"];
+		
         $url = "$this->url/$platform/players/$accountID/seasons/lifetime";
 
         $result = $this->curlSend($url, $apiKey);

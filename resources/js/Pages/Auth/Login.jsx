@@ -51,7 +51,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Пароль" />
 
                     <TextInput
                         id="password"
@@ -73,7 +73,7 @@ export default function Login({ status, canResetPassword }) {
                             checked={data.remember}
                             onChange={(e) => setData('remember', e.target.checked)}
                         />
-                        <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                        <span className="ms-2 text-sm text-gray-600 dark:text-gray-400">Запомнить меня</span>
                     </label>
                 </div>
 
@@ -83,7 +83,7 @@ export default function Login({ status, canResetPassword }) {
                             href={route('register')}
                             className="ml-5 underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
-                            Sign up
+                            Зарегистрироваться
                         </Link>
                     </div>
                     <div className="flex items-center justify-end">
@@ -92,11 +92,11 @@ export default function Login({ status, canResetPassword }) {
                                 href={route('password.request')}
                                 className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
-                                Forgot your password?
+                                Забыли пароль?
                             </Link>
                         )}
                         <PrimaryButton disabled={processing} className='flex items-center h-[38px] ml-[10px]'>
-                            Log in
+                           Войти
                         </PrimaryButton>
                     </div>
                 </div>

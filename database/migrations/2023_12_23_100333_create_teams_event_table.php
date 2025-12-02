@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('teams_event', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('event_id');
-            $table->bigInteger('team_lobby_number');
+            $table->unsignedBigInteger('event_id');
+            $table->unsignedBigInteger('team_lobby_number');
             $table->string('team_name');
-            $table->bigInteger('points');
-            $table->bigInteger('kill_points');
-            $table->bigInteger('place_points');
+            $table->unsignedBigInteger('points');
+            $table->unsignedBigInteger('kill_points');
+            $table->unsignedBigInteger('place_points');
             $table->json('detailed_info');
             $table->timestamps();
 
